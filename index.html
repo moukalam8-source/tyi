@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jeu des Lettres Avancé</title>
+
+<style>
+
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#000;
+    font-family:Arial;
+    color:white;
+    flex-direction:column;
+}
+
+#letters{
+    display:flex;
+    gap:20px;
+    font-size:60px;
+    margin-bottom:20px;
+}
+
+.letter{
+    cursor:pointer;
+    user-select:none;
+}
+
+.red{
+    color:red;
+}
+
+#top{
+    position:absolute;
+    top:10px;
+    text-align:center;
+    width:100%;
+}
+
+#inputBox{
+    display:none;
+    margin-top:20px;
+}
+
+input{
+    padding:10px;
+    font-size:18px;
+}
+
+button{
+    padding:10px;
+    font-size:18px;
+}
+
+#msg{
+    margin-top:20px;
+    font-size:26px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="top">
+    Clique uniquement sur la lettre ROUGE
+</div>
+
+<div id="letters"></div>
+
+<div id="inputBox">
+    <p>Écris un mot de ton choix :</p>
+    <input id="word">
+    <button onclick="checkWord()">Valider</button>
+</div>
+
+<div id="msg"></div>
+
+<script>
+
+/////////////////////////////
+// LETTRES
+/////////////////////////////
+
+const targetLetters = ["w","a","n","i","z","N","o","M","k"];
+
+const baseLetters = [
+"b","c","d","e","f","g","h","j",
+"l","p","q","r","s","t","u","v"
+];
+
+let collected = [];
+let currentIndex = 0;
+
+/////////////////////////////
+// MELANGE
+/////////////////////////////
+
+function shuffle(arr){
+    return arr.sort(()=>Math.random()-0.5);
+}
+
+/////////////////////////////
+// GENERER ROUND
+/////////////////////////////
+
+function generateRound(){
+
+    const container = document.getElementById("letters");
+    container.innerHTML = "";
+
+    let correct = targetLetters[currentIndex];
+
+    // mélange + injection lettre correcte
+    let pool = [...baseLetters];
+
+    pool = shuffle(pool).slice(0,2);
+    pool.push(correct);
+
+    pool = shuffle(pool);
+
+    pool.forEach(l=>{
+
+        let div = document.createElement("div");
+        div.classList.add("letter");
+        div.innerText = l;
+
+        if(l === correct){
+
+            div.classList.add("red");
+
+            div.onclick = ()=>{
+                collectLetter(l);
+            };
+
+        } else {
+
+            div.onclick = ()=>{
+                fail();
+            };
+
+        }
+
+        container.appendChild(div);
+
+    });
+
+}
+
+/////////////////////////////
+// COLLECTE
+/////////////////////////////
+
+function collectLetter(l){
+
+    collected.push(l);
+    currentIndex++;
+
+    if(currentIndex < targetLetters.length){
+        generateRound();
+    } else {
+        startFinal();
+    }
+
+}
+
+/////////////////////////////
+// ECHEC
+/////////////////////////////
+
+function fail(){
+
+    document.getElementById("msg").innerText =
+    "❌ Vous avez perdu";
+
+    document.getElementById("letters").style.display="none";
+}
+
+/////////////////////////////
+// ETAPE 2
+/////////////////////////////
+
+function startFinal(){
+
+    document.getElementById("letters").style.display="none";
+    document.getElementById("inputBox").style.display="block";
+
+    document.getElementById("top").innerText =
+    "Lettres obtenues : " + collected.join(" ");
+
+}
+
+/////////////////////////////
+// VERIF MOT
+/////////////////////////////
+
+function checkWord(){
+
+    let v = document.getElementById("word").value.toUpperCase();
+
+    if(v === "MWANKONZI"){
+
+        document.getElementById("msg").innerHTML =
+        "💖 JE T'AIME INANGA ❤️🖤";
+
+        hearts();
+
+    } else {
+
+        document.getElementById("msg").innerText =
+        "❌ Vous avez perdu";
+
+    }
+
+}
+
+/////////////////////////////
+// COEURS
+/////////////////////////////
+
+function hearts(){
+
+    setInterval(()=>{
+
+        let h = document.createElement("div");
+        h.innerHTML = "❤️";
+        h.style.position = "fixed";
+        h.style.left = Math.random()*100 + "vw";
+        h.style.top = "100vh";
+        h.style.fontSize = "24px";
+
+        document.body.appendChild(h);
+
+        let y = 100;
+
+        let anim = setInterval(()=>{
+
+            y -= 2;
+            h.style.top = y + "vh";
+
+            if(y < -10){
+                h.remove();
+                clearInterval(anim);
+            }
+
+        },30);
+
+    },200);
+
+}
+
+/////////////////////////////
+// START
+/////////////////////////////
+
+generateRound();
+
+</script>
+
+</body>
+</html>
